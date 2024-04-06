@@ -15,6 +15,10 @@ NC="\033[0m\e[0m"
 banner="
                         ${RED}+-------------------------------------+
                         |${NC}     ${YELLOW}Project Directory Structure${NC}     ${RED}|
+                        |                                     |
+                        |${NC} ${YELLOW}Author:${NC} Altf4-sh                    ${RED}|  
+                        |${NC} ${YELLOW}GitHub:${NC} https://github.com/Altf4-sh ${RED}|
+                        |${NC} ${YELLOW}Version:${NC} 1.0                        ${RED}|
                         +-------------------------------------+${NC}
 "
 
