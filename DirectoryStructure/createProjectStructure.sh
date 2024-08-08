@@ -18,7 +18,7 @@ banner="
                         |                                     |
                         |${NC} ${YELLOW}Author:${NC} Altf4-sh                    ${RED}|  
                         |${NC} ${YELLOW}GitHub:${NC} https://github.com/Altf4-sh ${RED}|
-                        |${NC} ${YELLOW}Version:${NC} 1.0                        ${RED}|
+                        |${NC} ${YELLOW}Version:${NC} 2.0                        ${RED}|
                         +-------------------------------------+${NC}
 "
 
@@ -61,7 +61,7 @@ menu(){
 
 # Creación custom de la estructura de un proyecto
 custom_directoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}CUSTOM DIRECTORY STRUCTURE${NC}\n"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}CUSTOM DIRECTORY STRUCTURE${NC}\n"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -76,16 +76,16 @@ custom_directoryStructure(){
         
         # Mediante un bucle while true, preguntamos el nombre de las carpetas que van en la raíz del proyecto y comprobamos que se introducen con el formato adecuado para su tratamiento
         while true; do
-            echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de las carpetas en al raíz de tu proyecto separadas por punto y coma. Mínimo 2 carpetas EJ: folder1;folder2;folder3;folder4;folder5 ${NC}\n"
+            echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de las carpetas en al ${YELLOW}raíz${NC} de tu proyecto separadas por punto y coma. Mínimo 2 carpetas EJ: folder1;folder2;folder3;folder4;folder5 ${NC}\n"
             read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}Name of folders:  ${NC} ")" folders
             # Comprobamos con la regla REGEX que se hace con el formato correcto
             if [[ $folders =~ $patronFolder && ! $folders =~ $patronFolder2 ]]; then
                 # Preguntamos si va haber archivos dentro de la raíz del proyecto y hacemos lo mismo que con las carpetas
-                read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}¿Va haber archivos en la raíz del proyecto? [s/n]${NC} ")" yesORno
+                read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}¿Va haber archivos en la ${YELLOW}raíz${NC} del proyecto? [s/n]${NC} ")" yesORno
                 if [ $yesORno == "s" ]; then
                     # Mediante un bucle while true, preguntamos el nombre de los archivos que van en la raíz del proyecto y comprobamos que se introducen con el formato adecuado para su tratamiento
                     while true; do
-                        echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de los archivos de la raíz del proyecto separados por punto y coma. Mínimo 2. EJ: file1;file2;file3 ${NC}\n"
+                        echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de los archivos de la ${YELLOW}raíz${NC} del proyecto separados por punto y coma. Mínimo 2. EJ: file1;file2;file3 ${NC}\n"
                         read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}Name of files:  ${NC} ")" filesRoot
                         if [[ $filesRoot =~ $patronFile ]]; then
                             # Creamos los archivos que van en la raíz del proyecto
@@ -101,31 +101,9 @@ custom_directoryStructure(){
                 elif [ $yesORno == "n" ]; then
                     echo -e "\n${PURPLE}[+]${NC} ${GREEN}OK${NC}\n"
                 fi
-                # Separamos las cadenas creadas para poder recorrer los elementos
-                IFS=';' read -ra elementos <<< "$folders"
-                for folder in "${elementos[@]}"; do
-                    # Creamos las carpetas dadas por el usuario
-                    mkdir $rute/$folder
-                    read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}¿Va haber archivos en $folder? [s/n]${NC} ")" yesORno
-                    if [ $yesORno == "s" ]; then
-                        while true; do
-                            echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de los archivos de $folder separados por punto y coma. Mínimo 2. EJ: file1;file2;file3 ${NC}\n"
-                            read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}Name of files:  ${NC} ")" filesFolder
-                            if [[ $filesFolder =~ $patronFile ]]; then
-                                # Creamos los archivos de cada carpeta
-                                IFS=';' read -ra elementos <<< "$filesFolder"
-                                for file in "${elementos[@]}"; do
-                                    touch $rute/$folder/$file
-                                done
-                                break
-                            else
-                                echo -e "\n${YELLOW}[+]${NC} ${RED}Formato incorrecto${NC}\n"
-                            fi
-                        done
-                    elif [ $yesORno == "n" ]; then
-                        echo -e "\n${PURPLE}[+]${NC} ${GREEN}OK${NC}\n"
-                    fi
-                done
+
+                structure $rute $patronFolder $patronFile $patronFolder2 $folders
+
                 echo -e "\n${PURPLE}[+]${NC} ${GREEN}Proyecto creado correctamente${NC}\n"
                 tree -a $rute
                 break
@@ -138,9 +116,55 @@ custom_directoryStructure(){
     fi
 }
 
+
+structure(){
+    # Separamos las cadenas creadas para poder recorrer los elementos
+    IFS=';' read -ra elementos <<< "$5"
+    for folder in "${elementos[@]}"; do
+        # Creamos las carpetas dadas por el usuario
+        mkdir $1/$folder
+        newRute=$1/$folder
+        read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}¿Va haber archivos en ${YELLOW}$folder${NC}? [s/n]${NC} ")" yesORno
+        if [ $yesORno == "s" ]; then
+            while true; do
+                echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de los archivos de ${YELLOW}$folder${NC} separados por punto y coma. Mínimo 2. EJ: file1;file2;file3 ${NC}\n"
+                read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}Name of files:  ${NC} ")" filesFolder
+                if [[ $filesFolder =~ $3 ]]; then
+                    # Creamos los archivos de cada carpeta
+                    IFS=';' read -ra elementos <<< "$filesFolder"
+                    for file in "${elementos[@]}"; do
+                        touch $1/$folder/$file
+                    done
+                    break
+                else
+                    echo -e "\n${YELLOW}[+]${NC} ${RED}Formato incorrecto${NC}\n"
+                fi
+            done
+        elif [ $yesORno == "n" ]; then
+            echo -e "\n${PURPLE}[+]${NC} ${GREEN}OK${NC}\n"
+        fi
+        read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}¿Va haber carpetas en ${YELLOW}$folder${NC}? [s/n]${NC} ")" yesORno
+        if [ $yesORno == "s" ]; then
+            while true; do
+                echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de las carpetas de ${YELLOW}$folder${NC} separados por punto y coma. Mínimo 2. EJ: folder1;folder2;folder3 ${NC}\n"
+                read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}Name of folders:  ${NC} ")" newFolder
+                if [[ $folders =~ $2 && ! $folders =~ $4 ]]; then
+                    # Llamamos a structure para que sea una fucion recursiva
+                    structure "$newRute" "$2" "$3" "$4" "$newFolder"
+                    break
+                else
+                    echo -e "\n${YELLOW}[+]${NC} ${RED}Formato incorrecto${NC}\n"
+                fi
+            done
+        elif [ $yesORno == "n" ]; then
+            echo -e "\n${PURPLE}[+]${NC} ${GREEN}OK${NC}\n"
+        fi
+    done
+}
+
 # Creación básica de la estructura de un proyecto para Python
 python_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC PYTHON DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC PYTHON DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -163,7 +187,7 @@ python_DirectoryStructure(){
 
 # Creación básica de la estructura de un proyecto para JavaScript
 javaScript_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC JAVASCRPT DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC JAVASCRPT DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -186,7 +210,7 @@ javaScript_DirectoryStructure(){
 
 # Creación básica de la estructura de un proyecto para Java
 java_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC JAVA DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC JAVA DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -209,7 +233,7 @@ java_DirectoryStructure(){
 
 # Creación básica de la estructura de un proyecto para C++
 c++_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC C++ DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC C++ DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -232,7 +256,7 @@ c++_DirectoryStructure(){
 
 # Creación básica de la estructura de un proyecto para C#
 c#_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC C# DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC C# DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -255,7 +279,7 @@ c#_DirectoryStructure(){
 
 # Creación básica de la estructura de un proyecto para PHP
 php_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC PHP DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC PHP DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -278,7 +302,7 @@ php_DirectoryStructure(){
 
 # Creación básica de la estructura de un proyecto para Ruby
 ruby_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC RUBY DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC RUBY DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -301,7 +325,7 @@ ruby_DirectoryStructure(){
 
 # Creación básica de la estructura de un proyecto para Swift
 swift_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC SWIFT DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC SWIFT DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -324,7 +348,7 @@ swift_DirectoryStructure(){
 
 # Creación básica de la estructura de un proyecto para Go
 go_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC GO DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC GO DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
@@ -347,7 +371,7 @@ go_DirectoryStructure(){
 
 # Creación básica de la estructura de un proyecto para Perl
 perl_DirectoryStructure(){
-    echo -e "           \n\n${YELLOW}[+][${NC} ${GREY}BASIC PERL DIRECTORY${NC}"
+    echo -e "           \n\n${YELLOW}[+]${NC} ${GREY}BASIC PERL DIRECTORY${NC}"
     sleep 0.5
     if [ $1 == "/" ]; then
         rute=$1$2
