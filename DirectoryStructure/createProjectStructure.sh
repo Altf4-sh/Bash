@@ -70,24 +70,22 @@ custom_directoryStructure(){
     fi
     if mkdir $rute; then
         # Reglas regex para controlar el nombre de carpetas y archivos
-        patronFolder="^([[:alnum:][:punct:]]+;)+[[:alnum:][:punct:]]+[^;]$"
-        patronFile="^([[:alnum:][:punct:]]+\.[[:alnum:]]+;)+[[:alnum:][:punct:]]+\.[[:alnum:]]+$"
-        patronFolder2="\b(\w+)\b.*\b\1\b"
-        
+        patron="^([[:alnum:][:punct:]]+;)+[[:alnum:][:punct:]]+[^;]$"
+        patron2="\b(\w+)\b.*\b\1\b"
         # Mediante un bucle while true, preguntamos el nombre de las carpetas que van en la raíz del proyecto y comprobamos que se introducen con el formato adecuado para su tratamiento
         while true; do
             echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de las carpetas en al ${YELLOW}raíz${NC} de tu proyecto separadas por punto y coma. Mínimo 2 carpetas EJ: folder1;folder2;folder3;folder4;folder5 ${NC}\n"
             read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}Name of folders:  ${NC} ")" folders
             # Comprobamos con la regla REGEX que se hace con el formato correcto
-            if [[ $folders =~ $patronFolder && ! $folders =~ $patronFolder2 ]]; then
+            if [[ $folders =~ $patron && ! $folders =~ $patron2 ]]; then
                 # Preguntamos si va haber archivos dentro de la raíz del proyecto y hacemos lo mismo que con las carpetas
                 read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}¿Va haber archivos en la ${YELLOW}raíz${NC} del proyecto? [s/n]${NC} ")" yesORno
                 if [ $yesORno == "s" ]; then
                     # Mediante un bucle while true, preguntamos el nombre de los archivos que van en la raíz del proyecto y comprobamos que se introducen con el formato adecuado para su tratamiento
                     while true; do
-                        echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de los archivos de la ${YELLOW}raíz${NC} del proyecto separados por punto y coma. Mínimo 2. EJ: file1;file2;file3 ${NC}\n"
+                        echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de los archivos de la ${YELLOW}raíz${NC} del proyecto separados por punto y coma.${NC}\n"
                         read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}Name of files:  ${NC} ")" filesRoot
-                        if [[ $filesRoot =~ $patronFile ]]; then
+                        if [[ $folders =~ $patron && ! $folders =~ $patron2 ]]; then
                             # Creamos los archivos que van en la raíz del proyecto
                             IFS=';' read -ra elementos <<< "$filesRoot"
                             for file in "${elementos[@]}"; do
@@ -102,7 +100,7 @@ custom_directoryStructure(){
                     echo -e "\n${PURPLE}[+]${NC} ${GREEN}OK${NC}\n"
                 fi
 
-                structure $rute $patronFolder $patronFile $patronFolder2 $folders
+                structure $rute $patron $patron2 $folders
 
                 echo -e "\n${PURPLE}[+]${NC} ${GREEN}Proyecto creado correctamente${NC}\n"
                 tree -a $rute
@@ -119,7 +117,7 @@ custom_directoryStructure(){
 
 structure(){
     # Separamos las cadenas creadas para poder recorrer los elementos
-    IFS=';' read -ra elementos <<< "$5"
+    IFS=';' read -ra elementos <<< "$4"
     for folder in "${elementos[@]}"; do
         # Creamos las carpetas dadas por el usuario
         mkdir $1/$folder
@@ -127,9 +125,9 @@ structure(){
         read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}¿Va haber archivos en ${YELLOW}$folder${NC}? [s/n]${NC} ")" yesORno
         if [ $yesORno == "s" ]; then
             while true; do
-                echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de los archivos de ${YELLOW}$folder${NC} separados por punto y coma. Mínimo 2. EJ: file1;file2;file3 ${NC}\n"
+                echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de los archivos de ${YELLOW}$folder${NC} separados por punto y coma.${NC}\n"
                 read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}Name of files:  ${NC} ")" filesFolder
-                if [[ $filesFolder =~ $3 ]]; then
+                if [[ $folders =~ $2 && ! $folders =~ $3 ]]; then
                     # Creamos los archivos de cada carpeta
                     IFS=';' read -ra elementos <<< "$filesFolder"
                     for file in "${elementos[@]}"; do
@@ -146,11 +144,11 @@ structure(){
         read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}¿Va haber carpetas en ${YELLOW}$folder${NC}? [s/n]${NC} ")" yesORno
         if [ $yesORno == "s" ]; then
             while true; do
-                echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de las carpetas de ${YELLOW}$folder${NC} separados por punto y coma. Mínimo 2. EJ: folder1;folder2;folder3 ${NC}\n"
+                echo -e "${YELLOW}[+]${NC} ${GREY}Nombre de las carpetas de ${YELLOW}$folder${NC} separados por punto y coma.${NC}\n"
                 read -p "$(echo -e "\n${YELLOW}[+]${NC} ${GREY}Name of folders:  ${NC} ")" newFolder
-                if [[ $folders =~ $2 && ! $folders =~ $4 ]]; then
+                if [[ $folders =~ $2 && ! $folders =~ $3 ]]; then
                     # Llamamos a structure para que sea una fucion recursiva
-                    structure "$newRute" "$2" "$3" "$4" "$newFolder"
+                    structure "$newRute" "$2" "$3" "$newFolder"
                     break
                 else
                     echo -e "\n${YELLOW}[+]${NC} ${RED}Formato incorrecto${NC}\n"
